@@ -1,8 +1,10 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Scanner;
 
-public class Player {
+ class Player {
 
 	public static void main(String[] args) {
 
@@ -11,8 +13,41 @@ public class Player {
 		gm.initialize();
 		
 		while(true) {
-			gm.update();
-		}
+            gm.update();
+			String output="";
+            HashSet<Integer> whereToGo = new HashSet<Integer>(); //per evitare 2 nella stessa pos ce le salviamo
+			for(int i: gm.myPos) { //per ogni posizione in cui abbiamo pod
+				System.err.println("robot in "+i);
+				int value=gm.myPodZone.get(i); //ci salviamo quanti pod abbiamo
+				
+				ArrayList<Integer> possibleReach=gm.reachable.get(i); //vediamo dove possiamo andare
+				
+				
+			    for(int j:possibleReach) {
+			    	if(gm.ownZone.get(j)== -1 && !whereToGo.contains(j) && value>0) //se è neutra
+			    	{
+                        System.err.println("possiamo andare in "+j);
+			    		value--; //perchè un nostro pod si muoverà 
+			    		
+                        output+="1"; output+=" "; output+=i; output+=" "; output+=j; output+=" "; 
+                       
+			    		whereToGo.add(j);
+			    		
+			    	}
+			    }
+				
+			}
+			
+			/*
+			for(Map.Entry<Integer, Integer> entry : gm.myPodZone.entrySet()) {
+			    Integer position = entry.getKey();
+			    Integer value = entry.getValue();
+
+			   }*/
+			System.out.println(output);
+			System.out.println("WAIT");
+        }
+
 
 	}
 
@@ -55,6 +90,7 @@ class GameManager {
             int zone1 = sc.nextInt();
             int zone2 = sc.nextInt();
             reachable.get(zone1).add(zone2);
+            reachable.get(zone2).add(zone1);
         }
 	}
 	
@@ -69,7 +105,7 @@ class GameManager {
              int platinum = sc.nextInt(); // the amount of Platinum this zone can provide (0 if hidden by fog)
              
              if(visible==1) visibleZone.add(zId);
-             if(podsP0>0) myPos.add(zId);
+             if(podsP0>0 && !myPos.contains(zId)) myPos.add(zId);
              if(podsP1>0) enemyPos.add(zId);
              platinumPresence.put(zId, platinum);
              ownZone.put(zId, ownerId);
